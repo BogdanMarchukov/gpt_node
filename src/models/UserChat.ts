@@ -6,7 +6,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { BaseModel } from './Base.model';
-import { Message, Usage } from '../../common/types';
+import { Message, Usage } from '../common/types';
 
 @Table({ tableName: 'userChats', modelName: 'userChat' })
 export class User extends BaseModel<User> {

@@ -4,6 +4,7 @@
     "password": "mysecretpassword",
     "database": "postgres",
     "host": "localhost",
+    "port": "5433",
     "dialect": "postgres"
   },
   "test": {
@@ -18,6 +19,7 @@
     "password": "mysecretpassword",
     "database": "postgres",
     "host": "localhost",
+    "port": "5433",
     "dialect": "postgres"
   }
 }

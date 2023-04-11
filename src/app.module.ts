@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { GptModule } from './modules/gpt/gpt.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from '../config/configuration';
+import configuration from './config/configuration';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './models/User.model';
 
