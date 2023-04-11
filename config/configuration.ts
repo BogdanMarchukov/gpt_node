@@ -7,4 +7,7 @@ export default () => ({
     password: process.env.POSTGRES_PASSWORD,
     port: process.env.POSTGRES_PORT,
   },
+  gpt: {
+    key: process.env.API_KEY_OPEN_AI,
+  },
 });
