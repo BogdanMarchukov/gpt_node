@@ -9,7 +9,7 @@ export class GptService {
       apiKey: this.configService.get<string>('gpt.key'),
     });
     const openai = new OpenAIApi(configuration);
-    openai.createChatCompletion({});
+     // openai.createChatCompletion({});
     const response = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt: 'Say this is a test',
