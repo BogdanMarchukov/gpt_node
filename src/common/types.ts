@@ -13,3 +13,11 @@ export type Message = {
   role: RoleType;
   content: string;
 };
+
+export type Payload = {
+  commonId: string;
+};
+
+export type CreateChatPayload = Payload & { startMessage: string };
+
+export type CreateUserPayload = Payload & { userName?: string };

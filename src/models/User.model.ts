@@ -5,4 +5,7 @@ import { BaseModel } from './Base.model';
 export class User extends BaseModel<User> {
   @Column
   userName: string | null;
+
+  @Column
+  commonId: string;
 }
