@@ -7,9 +7,10 @@ import {
 } from 'sequelize-typescript';
 import { BaseModel } from './Base.model';
 import { Message, Usage } from '../common/types';
+import { User } from './User.model';
 
 @Table({ tableName: 'userChats', modelName: 'userChat' })
-export class User extends BaseModel<User> {
+export class UserChat extends BaseModel<UserChat> {
   @Column
   object: string;
 
