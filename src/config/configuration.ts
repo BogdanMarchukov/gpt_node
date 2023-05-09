@@ -9,5 +9,6 @@ export default () => ({
   },
   gpt: {
     key: process.env.API_KEY_OPEN_AI,
+    model: process.env.MODEL
   },
 });

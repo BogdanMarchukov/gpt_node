@@ -21,7 +21,7 @@ export class UserChat extends BaseModel<UserChat> {
   usage: Usage;
 
   @Column(DataType.JSONB)
-  message: Message;
+  message: Message[];
 
   @BelongsTo(() => User, 'userId')
   user: User;
