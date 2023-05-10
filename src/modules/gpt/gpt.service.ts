@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../../models/User.model';
 import { UserChat } from '../../models/UserChat';
 import { Message } from '../../common/types';
+import { from, catchError, timeout, retry } from 'rxjs';
 @Injectable()
 export class GptService {
   constructor(private readonly configService: ConfigService) {}
@@ -21,19 +22,31 @@ export class GptService {
     });
   }
 
-  async createChat(user: User, startMessage: string) {
-    const { data } = await this.openai.createChatCompletion({
-      model: this.configService.get<string>('gpt.model'),
-      messages: [{ role: 'user', content: startMessage }],
+  async createChat(
+    user: User,
+    startMessage: string,
+  ): Promise<UserChat | Error> {
+    return new Promise((resolve, reject) => {
+      const subscribeOpenApi = from(
+        this.openai.createChatCompletion({
+          model: this.configService.get<string>('gpt.model'),
+          messages: [{ role: 'user', content: startMessage }],
+        }),
+      );
+      subscribeOpenApi.pipe(timeout(5000), retry(2)).subscribe({
+        next: async (axiosResponse) => {
+          const { data } = axiosResponse;
+          const userChat = await UserChat.create({
+            userId: user.id,
+            object: data.object,
+            model: data.model,
+            usage: data.usage,
+            message: data.choices.map((c) => c.message as Message),
+          });
+          resolve(userChat);
+        },
+        error: (error) => reject(error),
+      });
     });
-    const userChat = await UserChat.create({
-      userId: user.id,
-      object: data.object,
-      model: data.model,
-      usage: data.usage,
-      message: data.choices.map((c) => c.message as Message),
-    });
-
-    return userChat;
   }
 }

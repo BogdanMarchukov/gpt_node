@@ -6,6 +6,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './models/User.model';
 import { UserModule } from './modules/user/user.module';
 import { UserService } from './modules/user/user.service';
+import { UserChat } from './models/UserChat';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { UserService } from './modules/user/user.service';
         username: configService.get('database.userName') || 'postgres',
         password: configService.get('database.password') || 'mysecretpassword',
         database: configService.get('database.database') || 'postgres',
-        models: [User],
+        models: [User, UserChat],
       }),
       inject: [ConfigService],
     }),
