@@ -49,4 +49,39 @@ export class GptService {
       });
     });
   }
+
+  async replayChat(
+    user: User,
+    message: Message,
+    chatId: string,
+  ): Promise<UserChat | Error> {
+    return new Promise(async (resolve, reject) => {
+      const userChat = await UserChat.findByPk(chatId);
+      if (!userChat) {
+        reject(new Error());
+      }
+
+      const subscribeOpenApi = from(
+        this.openai.createChatCompletion({
+          model: this.configService.get<string>('gpt.model'),
+          messages: [...userChat.message, message],
+        }),
+      );
+      subscribeOpenApi.pipe(timeout(5000), retry(2)).subscribe({
+        next: async (axiosResponse) => {
+          const { data } = axiosResponse;
+          await userChat.update({
+            usage: data.usage,
+            message: [
+              ...userChat.message,
+              message,
+              ...data.choices.map((c) => c.message as Message),
+            ],
+          });
+          resolve(userChat);
+        },
+        error: (error) => reject(error),
+      });
+    });
+  }
 }

@@ -20,4 +20,7 @@ export type Payload = {
 
 export type CreateChatPayload = Payload & { startMessage: string };
 
-export type CreateUserPayload = Payload & { userName?: string };
+export type ReplayActiveChat = Payload & {
+  message: Message;
+  activeChatId: string;
+};
