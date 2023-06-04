@@ -67,7 +67,7 @@ export class GptService {
           messages: [...userChat.message, message],
         }),
       );
-      subscribeOpenApi.pipe(timeout(15000), retry(2)).subscribe({
+      subscribeOpenApi.subscribe({
         next: async (axiosResponse) => {
           const { data } = axiosResponse;
           await userChat.update({
