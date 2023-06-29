@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../../models/User.model';
 import { UserChat } from '../../models/UserChat';
 import { Message } from '../../common/types';
-import { from, catchError, timeout, retry } from 'rxjs';
+import { from, timeout, retry } from 'rxjs';
 @Injectable()
 export class GptService {
   constructor(private readonly configService: ConfigService) {}
@@ -21,6 +21,18 @@ export class GptService {
       max_tokens: 7,
     });
   }
+  private validateMessage(message: Message[]) {
+    let contentLength = 0;
+    message.forEach((m) => {
+      contentLength = contentLength + m.content.length;
+    });
+    if (contentLength > 10000) {
+      message.shift();
+      return this.validateMessage(message);
+    } else {
+      return message;
+    }
+  }
 
   async createChat(
     user: User,
@@ -33,7 +45,7 @@ export class GptService {
           messages: [{ role: 'user', content: startMessage }],
         }),
       );
-      subscribeOpenApi.pipe(timeout(5000), retry(2)).subscribe({
+      subscribeOpenApi.pipe(timeout(10000), retry(2)).subscribe({
         next: async (axiosResponse) => {
           const { data } = axiosResponse;
           const userChat = await UserChat.create({
@@ -64,7 +76,7 @@ export class GptService {
       const subscribeOpenApi = from(
         this.openai.createChatCompletion({
           model: this.configService.get<string>('gpt.model'),
-          messages: [...userChat.message, message],
+          messages: this.validateMessage([...userChat.message, message]),
         }),
       );
       subscribeOpenApi.subscribe({
