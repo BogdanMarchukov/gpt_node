@@ -5,34 +5,15 @@ import { User } from '../../models/User.model';
 import { UserChat } from '../../models/UserChat';
 import { Message } from '../../common/types';
 import { from, timeout, retry } from 'rxjs';
+import { RpcException } from '@nestjs/microservices';
 @Injectable()
 export class GptService {
   constructor(private readonly configService: ConfigService) {}
+
   private readonly configuration = new Configuration({
     apiKey: this.configService.get<string>('gpt.key'),
   });
   private readonly openai = new OpenAIApi(this.configuration);
-  async testGpt() {
-    // openai.createChatCompletion({});
-    const response = await this.openai.createCompletion({
-      model: 'text-davinci-003',
-      prompt: 'Say this is a test',
-      temperature: 0,
-      max_tokens: 7,
-    });
-  }
-  private validateMessage(message: Message[]) {
-    let contentLength = 0;
-    message.forEach((m) => {
-      contentLength = contentLength + m.content.length;
-    });
-    if (contentLength > 10000) {
-      message.shift();
-      return this.validateMessage(message);
-    } else {
-      return message;
-    }
-  }
 
   async createChat(
     user: User,
@@ -57,20 +38,19 @@ export class GptService {
           });
           resolve(userChat);
         },
-        error: (error) => reject(error),
+        error: (error) => reject(new RpcException(error.message)),
       });
     });
   }
 
   async replayChat(
-    user: User,
     message: Message,
     chatId: string,
   ): Promise<UserChat | Error> {
     return new Promise(async (resolve, reject) => {
       const userChat = await UserChat.findByPk(chatId);
       if (!userChat) {
-        reject(new Error());
+        reject(new RpcException('user not foud'));
       }
 
       const subscribeOpenApi = from(
@@ -92,8 +72,21 @@ export class GptService {
           });
           resolve(userChat);
         },
-        error: (error) => reject(error),
+        error: (error) => reject(new RpcException(error.message)),
       });
     });
+  }
+
+  private validateMessage(message: Message[]) {
+    let contentLength = 0;
+    message.forEach((m) => {
+      contentLength = contentLength + m.content.length;
+    });
+    if (contentLength > 10000) {
+      message.shift();
+      return this.validateMessage(message);
+    } else {
+      return message;
+    }
   }
 }
