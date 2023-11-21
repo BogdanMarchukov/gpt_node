@@ -6,12 +6,13 @@ import { UserChat } from '../../models/UserChat';
 import { Message } from '../../common/types';
 import { from, timeout, retry } from 'rxjs';
 import { RpcException } from '@nestjs/microservices';
+import { Gpt, RootKeys } from 'src/common/config-types';
 @Injectable()
 export class GptService {
   constructor(private readonly configService: ConfigService) {}
 
   private readonly configuration = new Configuration({
-    apiKey: this.configService.get<string>('gpt.key'),
+    apiKey: this.configService.get<Gpt>(RootKeys.Gpt).key,
   });
   private readonly openai = new OpenAIApi(this.configuration);
 
@@ -22,7 +23,7 @@ export class GptService {
     return new Promise((resolve, reject) => {
       const subscribeOpenApi = from(
         this.openai.createChatCompletion({
-          model: this.configService.get<string>('gpt.model'),
+          model: this.configService.get<Gpt>(RootKeys.Gpt).model,
           messages: [{ role: 'user', content: startMessage }],
         }),
       );
@@ -55,7 +56,7 @@ export class GptService {
 
       const subscribeOpenApi = from(
         this.openai.createChatCompletion({
-          model: this.configService.get<string>('gpt.model'),
+          model: this.configService.get<Gpt>(RootKeys.Gpt).model,
           messages: this.validateMessage([...userChat.message, message]),
         }),
       );

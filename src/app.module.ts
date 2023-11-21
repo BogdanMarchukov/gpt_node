@@ -5,8 +5,8 @@ import configuration from './config/configuration';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './models/User.model';
 import { UserModule } from './modules/user/user.module';
-import { UserService } from './modules/user/user.service';
 import { UserChat } from './models/UserChat';
+import { RootKeys } from './common/config-types';
 
 @Module({
   imports: [
@@ -18,12 +18,12 @@ import { UserChat } from './models/UserChat';
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        dialect: configService.get('database.dialect') || 'postgres',
-        host: configService.get('database.host') || '127.0.0.1',
-        port: +configService.get('database.port') || 5433,
-        username: configService.get('database.userName') || 'postgres',
-        password: configService.get('database.password') || 'mysecretpassword',
-        database: configService.get('database.database') || 'postgres',
+        dialect: configService.get(RootKeys.Database).dialect,
+        host: configService.get(RootKeys.Database).host,
+        port: configService.get(RootKeys.Database).port,
+        username: configService.get(RootKeys.Database).username,
+        password: configService.get(RootKeys.Database).password,
+        database: configService.get(RootKeys.Database).database,
         models: [User, UserChat],
       }),
       inject: [ConfigService],
