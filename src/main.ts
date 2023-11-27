@@ -1,7 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import * as process from "process";
+import {
+  MicroserviceOptions,
+  RpcException,
+  Transport,
+} from '@nestjs/microservices';
+import * as process from 'process';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -16,6 +21,14 @@ async function bootstrap() {
         },
       },
     },
+  );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) =>
+        new RpcException(
+          `validation error: ${JSON.stringify(errors.map((e) => e.value))}`,
+        ),
+    }),
   );
   await app.listen();
 }

@@ -51,7 +51,7 @@ export class GptService {
     return new Promise(async (resolve, reject) => {
       const userChat = await UserChat.findByPk(chatId);
       if (!userChat) {
-        reject(new RpcException('user not foud'));
+        reject(new RpcException('user chat not foud'));
       }
 
       const subscribeOpenApi = from(
