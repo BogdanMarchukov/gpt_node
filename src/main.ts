@@ -12,6 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
+      logger: ['log', 'warn', 'error', 'debug'],
       transport: Transport.RMQ,
       options: {
         urls: [`amqp://${process.env.RMQ_HOST}:5672`],
